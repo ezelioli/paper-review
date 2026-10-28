@@ -1,0 +1,16 @@
+# Example configuration; paths are relative to this file.
+paper = "."
+main = "main.tex"
+# bbl = "build/main.bbl"
+output = "build/paper-review/index.html"
+
+# Only needed when the paper uses its own macro names instead of review.sty's.
+# [macros]
+# plan = "reviewplan"
+# marker = "reviewmark"
+# todo = ["red"]
+
+[figures."fig:results"]
+paper = "bars"
+dir = "../plots"
+variants = { bars = "bars.png", lines = "lines.png" }

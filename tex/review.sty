@@ -1,0 +1,90 @@
+% review.sty: review material for paper drafts (planned structure, paragraph
+% markers, todos, figure variants). Renders in the PDF and in paper-review's HTML.
+%
+% Options:  review (default) show review material;  final  hide it;
+%           popups  planned structure as PDF pop-up notes instead of inline.
+% Commands: \begin{reviewplan} ... \end{reviewplan}  planned structure of a section
+%           \reviewmark{n}                           marker [n] -> plan item n
+%           \reviewtodo{text}                        todo in red (shown in both modes)
+%           \reviewvariants[paper]{label}{name=file, ...}
+%                                                    plot variants of figure <label>;
+%                                                    used by the HTML page only
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{review}[2026/10/28 review material for paper drafts]
+\RequirePackage{xcolor}
+
+\newif\ifreview
+\reviewtrue
+\newif\ifreviewpopups
+\reviewpopupsfalse
+\DeclareOption{review}{\reviewtrue}
+\DeclareOption{final}{\reviewfalse}
+\DeclareOption{popups}{\reviewpopupstrue}
+\ProcessOptions\relax
+
+\ifreview\ifreviewpopups
+  \RequirePackage{pdfcomment}
+  \hypersetup{hidelinks}
+  \pdfstringdefDisableCommands{\def\begin#1{}\def\end#1{}}
+\fi\fi
+
+\newcommand{\reviewbold}[1]{\textcolor{orange}{\textbf{#1}}}
+\newcommand{\reviewmark}[1]{\ifreview\reviewbold{[#1]}\fi}
+\newcommand{\reviewtodo}[1]{\textcolor{red}{#1}}
+
+\ExplSyntaxOn
+% Pop-up notes hold plain text: number list items, paragraphs become line breaks
+% (\begin and \end are dropped by \pdfstringdefDisableCommands above).
+\cs_new_protected:Npn \__review_number_items:
+  {
+    \tl_if_in:NnT \l_tmpa_tl { \item }
+      {
+        \int_incr:N \l_tmpa_int
+        \tl_set:Ne \l_tmpb_tl { \exp_not:N \textCR \int_use:N \l_tmpa_int ) ~ }
+        \exp_args:NNnV \tl_replace_once:Nnn \l_tmpa_tl { \item } \l_tmpb_tl
+        \__review_number_items:
+      }
+  }
+\cs_new_protected:Npn \__review_plan_popup:n #1
+  {
+    \tl_set:Nn \l_tmpa_tl {#1}
+    \int_zero:N \l_tmpa_int
+    \__review_number_items:
+    \tl_replace_all:Nnn \l_tmpa_tl { \par } { \textCR \textCR }
+    \noindent \reviewbold{[Plan]}
+    \use:e
+      {
+        \exp_not:N \pdfmargincomment
+          [icon=Note,color=orange,author=Plan,subject=Planned~structure]
+          { \exp_not:V \l_tmpa_tl }
+      }
+    \par
+  }
+\NewDocumentEnvironment{reviewplan}{+b}
+  {
+    \ifreview
+      \ifreviewpopups
+        \__review_plan_popup:n {#1}
+      \else
+        { \color{orange} \noindent \textbf{[Plan]} \par #1 \par }
+      \fi
+    \fi
+  }
+  {}
+
+% Figure variants go to \jobname.rvar (label|paper variant|name=file,...);
+% nothing is typeset.
+\iow_new:N \g__review_variants_iow
+\bool_new:N \g__review_variants_open_bool
+\NewDocumentCommand \reviewvariants { O{} m m }
+  {
+    \bool_if:NF \g__review_variants_open_bool
+      {
+        \iow_open:Nn \g__review_variants_iow { \c_sys_jobname_str .rvar }
+        \bool_gset_true:N \g__review_variants_open_bool
+      }
+    \iow_now:Ne \g__review_variants_iow
+      { \tl_to_str:n {#2} | \tl_to_str:n {#1} | \tl_to_str:n {#3} }
+  }
+\ExplSyntaxOff
+\endinput

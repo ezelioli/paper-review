@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400;1,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style>
+/* Layout: a single printed sheet on a cool desk; a slim review toolbar above it.
+   Review material is orange, as in the PDF's review mode; author todos stay red. */
+:root {
+  --desk: #e9ecef;
+  --sheet: #ffffff;
+  --ink: #1b1d20;
+  --ink-soft: #5b6168;
+  --rule: #d5d9de;
+  --review: #b35400;
+  --review-wash: #fff3e6;
+  --todo: #c4161c;
+  --link: #1f4e8c;
+  --font-paper: "STIX Two Text", "Times New Roman", Times, serif;
+  --font-ui: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #121417; --sheet: #1c1f23; --ink: #e3e5e8; --ink-soft: #9aa1a9;
+    --rule: #33383e; --review: #f0a35c; --review-wash: #33261a; --todo: #ff7a7a;
+    --link: #8fb4ec; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #121417; --sheet: #1c1f23; --ink: #e3e5e8; --ink-soft: #9aa1a9;
+  --rule: #33383e; --review: #f0a35c; --review-wash: #33261a; --todo: #ff7a7a;
+  --link: #8fb4ec; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--desk); color: var(--ink); font-family: var(--font-ui); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sheet); }
+
+/* Toolbar */
+.toolbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--sheet); border-bottom: 1px solid var(--rule);
+  padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.toolbar-inner { max-width: 50rem; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; }
+.toolbar-id { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.toolbar-kicker { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--review); }
+.toolbar-stamp { font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); overflow-wrap: anywhere; }
+.switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; cursor: pointer; user-select: none; }
+.switch input { appearance: none; width: 34px; height: 20px; border-radius: 10px; background: var(--rule); position: relative; margin: 0; cursor: pointer; transition: background .15s; }
+.switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--sheet); transition: transform .15s; }
+.switch input:checked { background: var(--review); }
+.switch input:checked::after { transform: translateX(14px); }
+.switch input:focus-visible { outline: 2px solid var(--review); outline-offset: 2px; }
+
+/* Sheet */
+main {
+  padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.paper {
+  max-width: 50rem; margin: 0 auto; background: var(--sheet);
+  padding: clamp(20px, 6vw, 64px) clamp(18px, 7vw, 76px);
+  box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 8px 28px rgba(0,0,0,.06);
+  font-family: var(--font-paper); font-size: 1.07rem; line-height: 1.55;
+  hyphens: auto; -webkit-hyphens: auto; text-align: justify;
+}
+.paper p { margin: 0; text-indent: 1.2em; }
+.paper p.noindent, .paper figure p, .paper .plan-pop p, .paper li p { text-indent: 0; }
+.paper a { color: var(--link); text-decoration: none; }
+.paper a:hover { text-decoration: underline; }
+.paper .maketitle { text-align: center; margin-bottom: 1.6em; }
+.paper .titleHead { font-family: var(--font-paper); font-weight: 400; font-size: 1.85rem; line-height: 1.2; text-wrap: balance; margin: 0 0 .6em; }
+.paper .author { font-size: .95rem; color: var(--ink-soft); }
+.paper .abstract { font-size: .95rem; margin: 0 0 1em; }
+.paper .abstracttitle { font-size: .95rem; font-weight: 700; font-style: italic; margin: 0 0 .3em; display: inline; }
+.paper .sectionHead { font-family: var(--font-paper); font-weight: 400; font-variant: small-caps; letter-spacing: .03em; text-align: center; font-size: 1.12rem; margin: 1.8em 0 .7em; text-wrap: balance; }
+.paper .subsectionHead { font-family: var(--font-paper); font-weight: 400; font-style: italic; font-size: 1.07rem; margin: 1.3em 0 .4em; }
+.paper .subsubsectionHead { font-family: var(--font-paper); font-weight: 400; font-style: italic; font-size: 1rem; margin: 1em 0 .3em; }
+.paper .titlemark { margin-right: .35em; }
+.paper .likesectionHead { font-family: var(--font-paper); font-weight: 400; font-variant: small-caps; text-align: center; font-size: 1.12rem; margin: 1.8em 0 .7em; }
+.paper ul, .paper ol { margin: .4em 0 .6em; padding-left: 1.6em; }
+.paper li { margin: .15em 0; }
+.paper math { font-size: 1.05em; }
+.paper .small-caps { font-variant: small-caps; }
+.paper .tcrm-1000 { font-family: var(--font-paper); }
+{{FONT_CSS}}
+
+/* Figures and tables */
+.paper figure { margin: 1.6em 0; display: flex; flex-direction: column; gap: 10px; }
+.paper figure img { display: block; margin: 0 auto; max-width: 100%; height: auto; background: #fff; }
+.paper figcaption { font-size: .9rem; line-height: 1.4; text-align: left; }
+.paper figcaption .id { font-weight: 400; font-variant: small-caps; }
+.paper .fbox { border: 1px dashed var(--rule); padding: 3em 1em; text-align: center; color: var(--ink-soft); font-size: .9rem; }
+.table-scroll { overflow-x: auto; margin: 1em 0; }
+.paper table { border-collapse: collapse; font-size: .85rem; margin: 0 auto; text-align: left; }
+.paper td, .paper th { padding: 3px 8px; vertical-align: top; }
+.paper .hline hr, .paper hr { border: 0; border-top: 1px solid var(--ink-soft); margin: 0; }
+.paper .thebibliography, .paper dl.thebibliography { font-size: .88rem; }
+.paper dt.thebibliography { float: left; clear: left; width: 2.6em; }
+.paper dd.thebibliography { margin: 0 0 .35em 2.8em; }
+.paper .footnotes { font-size: .85rem; }
+
+/* Review material */
+.paper .todo, .paper .todo [style*="color"] { color: var(--todo) !important; }
+.reviewmark {
+  font-family: var(--font-ui); font-size: .72em; font-weight: 600; color: var(--review);
+  background: var(--review-wash); border-radius: 3px; padding: 1px 4px; margin-right: 2px;
+  cursor: help; vertical-align: .08em; text-indent: 0; white-space: nowrap;
+}
+.reviewmark:focus-visible { outline: 2px solid var(--review); outline-offset: 1px; }
+.plan { position: relative; margin: .2em 0 .8em; text-indent: 0; }
+.plan-chip {
+  font-family: var(--font-ui); font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--review); background: var(--review-wash); border: 1px solid var(--review);
+  border-radius: 4px; padding: 3px 10px; cursor: pointer;
+}
+.plan-chip::before { content: "▸ "; }
+.plan-chip[aria-expanded="true"]::before { content: "▾ "; }
+.plan-chip:focus-visible { outline: 2px solid var(--review); outline-offset: 2px; }
+.plan-pop {
+  position: absolute; z-index: 4; top: calc(100% + 6px); left: 0; width: min(36rem, 100%);
+  background: var(--sheet); border: 1px solid var(--review); border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.16); padding: 14px 18px 12px;
+  font-size: .95rem; line-height: 1.45; text-align: left; hyphens: manual;
+}
+.plan-head { font-family: var(--font-ui); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--review); margin-bottom: 6px !important; }
+.plan-pop ol { margin: 0; }
+.plan-pop li.is-current { background: var(--review-wash); outline: 4px solid var(--review-wash); }
+.mark-tip {
+  position: fixed; z-index: 20; max-width: min(24rem, calc(100vw - 32px));
+  background: var(--sheet); color: var(--ink); border: 1px solid var(--review); border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 10px 12px;
+  font-family: var(--font-paper); font-size: .9rem; line-height: 1.4; pointer-events: none;
+}
+.mark-tip b { font-family: var(--font-ui); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--review); display: block; margin-bottom: 3px; }
+
+.variant-bar { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; font-family: var(--font-ui); }
+.variant-btn {
+  font: 500 12.5px var(--font-ui); color: var(--ink-soft); background: transparent;
+  border: 1px solid var(--rule); border-radius: 4px; padding: 4px 10px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.variant-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+.variant-btn[aria-selected="true"] { color: var(--review); border-color: var(--review); background: var(--review-wash); }
+.variant-btn:focus-visible { outline: 2px solid var(--review); outline-offset: 2px; }
+.paper-badge { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--sheet); background: var(--ink-soft); border-radius: 3px; padding: 1px 5px; }
+.variant-btn[aria-selected="true"] .paper-badge { background: var(--review); }
+.fig-stage { position: relative; }
+.variant-note { font-family: var(--font-ui); font-size: 12px !important; color: var(--review); text-align: center; min-height: 1em; }
+
+:root[data-review="off"] .review { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) { .switch input, .switch input::after { transition: none; } }
+@media (max-width: 520px) { .paper { text-align: left; font-size: 1rem; } .paper .titleHead { font-size: 1.45rem; } }
+</style>
+</head>
+<body>
+
+<header class="toolbar">
+  <div class="toolbar-inner">
+    <div class="toolbar-id">
+      <span class="toolbar-kicker">Review copy · not the typeset PDF</span>
+      <span class="toolbar-stamp">{{STAMP}}</span>
+    </div>
+    <label class="switch" for="review-toggle">
+      <input type="checkbox" id="review-toggle" checked>
+      Review material
+    </label>
+  </div>
+</header>
+
+<main>
+  <article class="paper">
+{{PAPER}}
+  </article>
+</main>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const toggle = document.getElementById('review-toggle');
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+  };
+
+  // Figures: switch between the paper's figure and the analysis previews.
+  const figures = [...document.querySelectorAll('figure[data-label]')];
+  function showVariant(fig, name) {
+    const paper = fig.dataset.paper;
+    const reviewOn = root.dataset.review !== 'off';
+    const hasOriginal = !!fig.querySelector('.fig-original img');
+    const useOriginal = !reviewOn || (name === paper && hasOriginal);
+    fig.querySelector('.fig-original').hidden = !useOriginal;
+    fig.querySelectorAll('.variant-img').forEach(img => { img.hidden = useOriginal || img.dataset.variant !== name; });
+    fig.querySelectorAll('.variant-btn').forEach(b => b.setAttribute('aria-selected', String(b.dataset.variant === name)));
+    const note = fig.querySelector('.variant-note');
+    if (!paper) note.textContent = 'No figure in the paper yet. Showing a preview from the analysis outputs.';
+    else if (name === paper) note.textContent = hasOriginal ? 'Figure as included in the paper.' : 'Variant chosen for the paper (figure file not built yet).';
+    else note.textContent = 'Alternative variant, preview only. Not in the paper.';
+    fig.dataset.current = name;
+    store.set('variant:' + fig.dataset.label, name);
+  }
+  figures.forEach(fig => {
+    fig.querySelectorAll('.variant-btn').forEach(b => b.addEventListener('click', () => showVariant(fig, b.dataset.variant)));
+    const saved = store.get('variant:' + fig.dataset.label);
+    const names = [...fig.querySelectorAll('.variant-btn')].map(b => b.dataset.variant);
+    showVariant(fig, names.includes(saved) ? saved : fig.dataset.default);
+  });
+
+  // Review toggle.
+  function setReview(on) {
+    root.dataset.review = on ? 'on' : 'off';
+    toggle.checked = on;
+    store.set('review', on ? 'on' : 'off');
+    figures.forEach(fig => showVariant(fig, fig.dataset.current));
+    if (!on) closePlans();
+  }
+  toggle.addEventListener('change', () => setReview(toggle.checked));
+
+  // Planned structure pop-overs.
+  const plans = [...document.querySelectorAll('.plan')];
+  function closePlans(except) {
+    plans.forEach(p => {
+      if (p === except) return;
+      p.querySelector('.plan-pop').hidden = true;
+      p.querySelector('.plan-chip').setAttribute('aria-expanded', 'false');
+    });
+  }
+  plans.forEach(p => {
+    const chip = p.querySelector('.plan-chip'), pop = p.querySelector('.plan-pop');
+    chip.addEventListener('click', e => {
+      e.stopPropagation();
+      const open = pop.hidden;
+      closePlans(p);
+      pop.hidden = !open;
+      chip.setAttribute('aria-expanded', String(open));
+    });
+    pop.addEventListener('click', e => e.stopPropagation());
+  });
+  document.addEventListener('click', () => closePlans());
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closePlans(); hideTip(); } });
+
+  // Paragraph markers [n]: show item n of the plan that precedes them.
+  const tip = document.createElement('div');
+  tip.className = 'mark-tip'; tip.hidden = true; tip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tip);
+  function planFor(mark) {
+    let found = null;
+    for (const p of plans) if (p.compareDocumentPosition(mark) & Node.DOCUMENT_POSITION_FOLLOWING) found = p;
+    return found;
+  }
+  function showTip(mark) {
+    const plan = planFor(mark);
+    const item = plan && plan.querySelectorAll('.plan-pop ol > li')[Number(mark.dataset.item) - 1];
+    if (!item) return;
+    tip.innerHTML = '';
+    const b = document.createElement('b'); b.textContent = 'Plan item ' + mark.dataset.item;
+    tip.append(b, document.createTextNode(item.textContent.replace(/\s+/g, ' ').trim()));
+    tip.hidden = false;
+    const r = mark.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    const left = Math.min(Math.max(16, r.left), window.innerWidth - t.width - 16);
+    const top = r.bottom + 8 + t.height < window.innerHeight ? r.bottom + 8 : r.top - t.height - 8;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  function hideTip() { tip.hidden = true; }
+  document.querySelectorAll('.reviewmark').forEach(m => {
+    m.setAttribute('aria-label', 'Plan item ' + m.dataset.item);
+    m.addEventListener('mouseenter', () => showTip(m));
+    m.addEventListener('focus', () => showTip(m));
+    m.addEventListener('mouseleave', hideTip);
+    m.addEventListener('blur', hideTip);
+  });
+  window.addEventListener('scroll', hideTip, { passive: true });
+
+  setReview(store.get('review') !== 'off');
+})();
+</script>
+</body>
+</html>

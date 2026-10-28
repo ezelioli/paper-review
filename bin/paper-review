@@ -1,0 +1,3 @@
+#!/bin/sh
+# Runs paper_review.py with its dependencies (uv manages them).
+exec uv run --quiet --script "$(dirname "$(realpath "$0")")/../paper_review.py" "$@"

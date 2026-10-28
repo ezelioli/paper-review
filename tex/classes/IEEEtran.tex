@@ -1,0 +1,21 @@
+% IEEEtran stand-in for the HTML build: tex4ht has no heading support for
+% IEEEtran, so the paper is built with article and these definitions.
+% Read with \input right after article is loaded.
+\providecommand\IEEEmembership[1]{}
+\providecommand\IEEEPARstart[2]{#1#2}
+\providecommand\IEEEpubid[1]{}
+\providecommand\IEEEpubidadjcol{}
+\providecommand\IEEEpeerreviewmaketitle{}
+\providecommand\IEEEauthorblockN[1]{#1}
+\providecommand\IEEEauthorblockA[1]{#1}
+\providecommand\IEEEcompsocitemizethanks[1]{#1}
+\providecommand\IEEEraisesectionheading[1]{#1}
+\providecommand\IEEEtriggeratref[1]{}
+\renewcommand\markboth[2]{}
+\newenvironment{IEEEkeywords}{\par\noindent\textbf{Index Terms---}}{\par}
+\newenvironment{IEEEbiography}[2][]{\par}{\par}
+\newenvironment{IEEEbiographynophoto}[1]{\par}{\par}
+\AtBeginDocument{%
+  \renewcommand\thesection{\Roman{section}}%
+  \renewcommand\thesubsection{\Alph{subsection}}%
+  \renewcommand\thesubsubsection{\arabic{subsubsection})}}
